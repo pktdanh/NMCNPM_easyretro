@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../style/styledashboard.css">
+    <title>DashBoard</title>
+    
+</head>
+<style>
+    @import "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
+    .header{
+        align-items: center;
+        background-color: #2196f3;
+        color: #fff;
+        display: flex;
+        flex-wrap: nowrap;
+        font-family: -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        font-size: 17px;
+        min-height: 47px;
+        padding-left: 15px;
+        padding-right: 15px;
+        width: 100%;
+    }
+    .header a, p{
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    .menu{
+        background-color: #fff;
+        height: 47px;
+        width: 100%;
+    }
+    .menu ul{
+        float: left;
+        font-family: -apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+        font-size: 14px;
+        list-style: outside none none;
+        margin: 10px 0 0 30px;
+        padding-left: 0;
+        display: flex;
+    }
+    .menu li{
+        margin-right: 20px;
+        position: relative;
+        top: 10px;
+    }
+    .menu a{
+        color: #555;
+        text-decoration: none;
+    }
+
+    .dashboard{
+        background-color: #f3f3f3;
+        font-family: -apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+        height: 100vh;
+        padding: 20px 30px;
+        color: #283593;
+    }
+
+    .dashboard span{
+        font-size: 18.2px;
+        font-weight: bold;
+    }
+    .dashboard small{
+        color: #777;
+        font-weight: 400;
+        margin-left: .5em;
+    }
+
+    .addBoard{
+        background-position: 0 center;
+        border: 2px dashed #ccc;
+        border-radius: 2px;
+        box-shadow: none;
+        box-sizing: border-box;
+        color: #555;
+        cursor: pointer;
+        display: inline-block;
+        font-family: -apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+        font-size: 14px;
+        margin: 10px;
+        position: relative;
+        quotes: auto;
+        vertical-align: top;
+        width: 20%;
+        text-align: center;
+        min-height: 100px;
+    }
+
+    .addBoard i{
+        -webkit-font-smoothing: antialiased;
+        background-color: #8e24aa;
+        border-radius: 50%;
+        box-sizing: border-box;
+        color: #f3f3f3;
+        cursor: pointer;
+        font-family: FontAwesome;
+        font-size: 1.0em;
+        font-weight: 100;
+        line-height: 1;
+        padding: 20px 22px;
+        quotes: auto;
+        text-rendering: auto;
+        margin: 5px;
+    }
+
+    .addBoard small{
+        box-sizing: border-box;
+        color: #8e24aa;
+        cursor: pointer;
+        display: block;
+        font-family: -apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+        font-size: .9em;
+        font-weight: 700;
+        margin: 10px 10px 10px 0;
+        quotes: auto;
+        text-align: center;
+    }
+
+    .addBoard:hover{
+        border-color: #8e24aa;
+    }
+
+
+</style>
+<body>
+    <div class="main">
+        <div class="header" >
+            <a class="fa fa-bars" aria-hidden="true" href="/dashboard"></a>
+            <p>Easy <strong>Retro</strong></p>
+            {{#if user}}
+                    <a href="/profile" class="btn btn-warning mr-auto">
+                        <i aria-hidden="true" class="fa fa-sign-out"></i>
+                        My Profile
+                    </a>
+                    <a href="/login/logout" class="btn btn-dark" >
+                        <i aria-hidden="true" class="fa fa-sign-out"></i>
+                        Log Out
+                    </a>
+            {{/if}}
+        </div>
+        <div class="menu">
+            <ul class="menu-select">
+                <li>
+                    <a href="/dashboard">DASHBOARD</a>
+                </li>
+                <li>
+                    <a href="/team">TEAMS</a>
+                </li>
+                <li>
+                    <a href="/analytic">ANALYTICS</a>
+                </li>
+                <li>
+                    <a href="/intergration">INTERGRATIONS</a>
+                </li>
+                <li>
+                    <a href="">BILLING</a>
+                </li>
+            </ul>
+        </div>
+        <div class="dashboard">
+            <h1>My boards</h1>
+            <h2>
+                <span>
+                    Public boards
+                    <small>collabrate by sharing URL with people</small>
+                </span>
+            </h2>
+            <a href="/dashboard/publicboard">
+                <button class = "addBoard" onClick={this.add()}>
+                <i class="fa fa-plus"></i>
+                <small>Add board</small>
+            </button>
+            </a>        
+        </div>
+    </div>
+</body>
+</html>
