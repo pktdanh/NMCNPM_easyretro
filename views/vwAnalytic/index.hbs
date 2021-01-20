@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../style/styledashboard.css">
+    <title>Intergration</title>
+    
+</head>
+<style>
+    @import "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css";
+    .header{
+        align-items: center;
+        background-color: #2196f3;
+        color: #fff;
+        display: flex;
+        flex-wrap: nowrap;
+        font-family: -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        font-size: 17px;
+        min-height: 47px;
+        padding-left: 15px;
+        padding-right: 15px;
+        width: 100%;
+    }
+    .header a, p{
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    .menu{
+        background-color: #fff;
+        height: 47px;
+        width: 100%;
+    }
+    .menu ul{
+        float: left;
+        font-family: -apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+        font-size: 14px;
+        list-style: outside none none;
+        margin: 10px 0 0 30px;
+        padding-left: 0;
+        display: flex;
+    }
+    .menu li{
+        margin-right: 20px;
+        position: relative;
+        top: 10px;
+    }
+    .menu a{
+        color: #555;
+        text-decoration: none;
+    }
+    .intergration{
+        background-color: #f1f2f5;
+        box-sizing: border-box;
+        color: #555;
+        font-family: -apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+        font-size: 14px;
+        min-height: calc(100vh - 48px);
+        padding: 50px 40px;
+        quotes: auto;
+    }
+    #inter{
+        box-sizing: border-box;
+        color: #3e3e52;
+        font-family: -apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0;
+        quotes: auto;
+    }
+
+</style>
+<body>
+    <div class="main">
+        <div class="header">
+            <a class="fa fa-bars" aria-hidden="true" href="/dashboard"></a>
+            <p>Easy <strong>Retro</strong></p>
+            {{#if user}}
+                    <a href="/profile" class="btn btn-warning mr-auto">
+                        <i aria-hidden="true" class="fa fa-sign-out"></i>
+                        My Profile
+                    </a>
+                    <a href="/login/logout" class="btn btn-dark" >
+                        <i aria-hidden="true" class="fa fa-sign-out"></i>
+                        Log Out
+                    </a>
+            {{/if}}
+        </div>
+        <div class="menu">
+            <ul class="menu-select">
+                <li>
+                    <a href="/dashboard">DASHBOARD</a>
+                </li>
+                <li>
+                    <a href="/team">TEAMS</a>
+                </li>
+                <li>
+                    <a href="/analytic">ANALYTICS</a>
+                </li>
+                <li>
+                    <a href="/intergration">INTERGRATIONS</a>
+                </li>
+                <li>
+                    <a href="">BILLING</a>
+                </li>
+            </ul>
+        </div>
+        <div class="intergration">
+            <p>Not enough data to show</p>
+        </div>
+    </div>
+</body>
+</html>
