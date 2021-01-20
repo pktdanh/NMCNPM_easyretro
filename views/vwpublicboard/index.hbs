@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPNY</title>
+</head>
+<style>
+    * {
+  box-sizing: border-box;
+}
+html, body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  font-family: Helvetica, Arial, sans-serif;
+}
+body {
+  margin: 0;
+  padding: 20px 10px;
+}
+.drag-container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+}
+.board {
+  position: relative;
+}
+.board-column {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0 10px;
+  width: calc(100% / 3);
+  z-index: 1;
+}
+.board-column.muuri-item-releasing {
+  z-index: 2;
+}
+.board-column.muuri-item-dragging {
+  z-index: 3;
+  cursor: move;
+}
+.board-column-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.board-column-header {
+  position: relative;
+  height: 50px;
+  line-height: 50px;
+  overflow: hidden;
+  padding: 0 20px;
+  text-align: center;
+  background: #333;
+  color: #fff;
+  border-radius: 5px 5px 0 0;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+@media (max-width: 600px) {
+  .board-column-header {
+    text-indent: -1000px;
+  }
+}
+.board-column.todo .board-column-header {
+  background: #4A9FF9;
+}
+.board-column.working .board-column-header {
+  background: #f9944a;
+}
+.board-column.done .board-column-header {
+  background: #2ac06d;
+}
+.board-column-content-wrapper {
+  position: relative;
+  padding: 8px;
+  background: #f0f0f0;
+  height: calc(100vh - 90px);
+  overflow-y: auto;
+  border-radius: 0 0 5px 5px;
+}
+.board-column-content {
+  position: relative;
+  min-height: 100%;
+}
+.board-item {
+    display: flex;
+    flex-direction: column;
+  position: absolute;
+  width: calc(100% - 16px);
+  margin: 8px;
+}
+.board-item.muuri-item-releasing {
+  z-index: 9998;
+}
+.board-item.muuri-item-dragging {
+  z-index: 9999;
+  cursor: move;
+}
+.board-item.muuri-item-hidden {
+  z-index: 0;
+}
+.board-item-content {
+  position: relative;
+  padding: 20px;
+  background: #fff;
+  border-radius: 4px;
+  font-size: 17px;
+  cursor: pointer;
+  -webkit-box-shadow: 0px 1px 3px 0 rgba(0,0,0,0.2);
+  box-shadow: 0px 1px 3px 0 rgba(0,0,0,0.2);
+}
+@media (max-width: 600px) {
+  .board-item-content {
+    text-align: center;
+  }
+  .board-item-content span {
+    display: none;
+  }
+}
+/* New STYLE */
+#addTodoListDiv{
+    padding-left: 100px;
+}
+.comment{
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-top: 0.5em;
+        padding: 0.5em;
+        font-size: 0.8em;
+    }
+
+    .commentsInput{
+        margin-right: 0.5em;
+    }
+
+    .comment button{
+        visibility: hidden;
+        height: max-content;
+
+        background: none;
+        border: none;
+        padding: 0.3em;
+        justify-content: flex-end;
+    }
+
+
+    .comment:hover button{
+        visibility: visible;
+    }
+
+    .comment button:hover{
+        background-color: rgb(235, 235, 235);
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    #cmt{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .btn-save{
+        background-color: #5aac44;
+        color: white;
+        border: none;
+        border-radius: 4px;
+
+        padding: 0.5em;
+        margin-top: 0.5em;
+        
+    }
+</style>
+<body>
+<div class="drag-container"></div>
+<div class="board">
+  <div class="board-column todo">
+    <div class="board-column-container">
+      <div class="board-column-header">Todo</div>
+      <div id="addTodoListDiv">
+        <input id="addTodoInput" class="comment">
+        <button id="addTodo" class="btn-save">Add</button>
+    </div>
+      <div class="board-column-content-wrapper">
+        <div class="board-column-content" id="column-todo">
+          <div class="board-item"><div class="board-item-content"></div></div>
+          <!-- <div class="board-item"><div class="board-item-content"></div></div>
+          <div class="board-item"><div class="board-item-content"></div></div>
+          <div class="board-item"><div class="board-item-content"></div></div>
+          <div class="board-item"><div class="board-item-content"></div></div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="board-column working">
+    <div class="board-column-container">
+      <div class="board-column-header">Working</div>
+      <div id="addTodoListDiv">
+        <input id="addWorkingInput" class="comment">
+        <button id="addWorking" class="btn-save">Add</button>
+    </div>
+      <div class="board-column-content-wrapper">
+        <div class="board-column-content"  id="column-working">
+          <div class="board-item"><div class="board-item-content"></div></div>
+          <!-- <div class="board-item"><div class="board-item-content"></div></div>
+          <div class="board-item"><div class="board-item-content"></div></div>
+          <div class="board-item"><div class="board-item-content"></div></div>
+          <div class="board-item"><div class="board-item-content"></div></div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="board-column done">
+    <div class="board-column-container">
+      <div class="board-column-header">Done</div>
+      <div id="addTodoListDiv">
+        <input id="addDoneInput" class="comment">
+        <button id="addDone" class="btn-save">Add</button>
+    </div>
+      <div class="board-column-content-wrapper">
+        <div class="board-column-content"  id="column-done">
+          <div class="board-item"><div class="board-item-content"></div></div>
+          <!-- <div class="board-item"><div class="board-item-content"></div></div>
+          <div class="board-item"><div class="board-item-content"></div></div>
+          <div class="board-item"><div class="board-item-content"></div></div>
+          <div class="board-item"><div class="board-item-content"></div></div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/muuri@0.9.3/dist/muuri.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    var dragContainer = document.querySelector('.drag-container');
+    var itemContainers = [].slice.call(document.querySelectorAll('.board-column-content'));
+    var columnGrids = [];
+    var boardGrid;
+    
+    // Init the column grids so we can drag those items around.
+    itemContainers.forEach(function (container) {
+      var grid = new Muuri(container, {
+        items: '.board-item',
+        dragEnabled: true,
+        dragSort: function () {
+          return columnGrids;
+        },
+        dragContainer: dragContainer,
+        dragAutoScroll: {
+          targets: (item) => {
+            return [
+              { element: window, priority: 0 },
+              { element: item.getGrid().getElement().parentNode, priority: 1 },
+            ];
+          }
+        },
+       
+      })
+      .on('dragInit', function (item) {
+        item.getElement().style.width = item.getWidth() + 'px';
+        item.getElement().style.height = item.getHeight() + 'px';
+        
+      })
+      .on('dragReleaseEnd', function (item) {
+        item.getElement().style.width = '';
+        item.getElement().style.height = '';
+        item.getGrid().refreshItems([item]);
+      })
+      .on('layoutStart', function () {
+        boardGrid.refreshItems().layout();
+      })
+      .on('synchronize', function () {
+      console.log('Synced!');
+      })
+      .on('add', function (item) {
+      console.log(item);
+      })
+      .on('remove', function (item, indices) {
+      console.log(item, indices);
+      })
+      .on('showStart', function (items) {
+      console.log(items);
+      })  
+      .on('remove', function (items, indices) {
+      console.log(items, indices);
+      }) 
+      .on('layout', function(item){
+        console.log("Layout");
+        item.getElement().style.width = item.getWidth() + 'px';
+        item.getElement().style.height = item.getHeight() + 'px';
+        item.getGrid().refreshItems([item]);
+      })
+      columnGrids.push(grid);
+      
+    });
+    
+    // Init board grid so we can drag those columns around.
+    boardGrid = new Muuri('.board', {
+      dragEnabled: true,
+      dragHandle: '.board-column-header'
+    });
+
+    function refreshAll(){
+      console.log("Refreshing...");
+      for(let i = 0; i < 3; i++){        
+        columnGrids[i].refreshItems().layout()//refresh grid by this code        
+      }
+      return true;
+    }
+    </script>
+<!-- NEW SCRIPT -->
+<script>
+    // DESIGN DATABASE
+    const board = {
+        todo : [],
+        working : [],
+        done : []
+    }
+
+    class Todo{
+        constructor(title = "New to-do", type = 1){
+            if(type == 1){
+                this.place = document.getElementById("column-todo")
+            } else if (type == 2) {
+                this.place = document.getElementById("column-working")
+            } else if (type == 3) {
+                this.place = document.getElementById("column-done")
+            }
+            this.title = title;
+            this.type = type;
+            this.cardArray = [];
+            this.render();
+        }
+
+        addToDo(value){
+            let text = value;  
+        }
+
+        render(){
+            this.createToDoListElement();
+            //todoArray.push(this);
+            this.place.append(this.todoListElementContent);  
+        }
+
+        createToDoListElement(){
+            //Create elements 
+            this.todo_title = document.createElement('div');
+            this.todo_title.className = "todo-header";//Viet edit
+            this.todo_header = document.createElement('div');
+            this.todo_comment = document.createElement('div');
+            this.todo_comment.setAttribute("id", "cmt");         
+            this.todo_title.innerText = this.title;
+            this.clear_btn = document.createElement('button');
+            this.clear_btn.innerText = "X";
+            this.button = document.createElement('button');
+            this.button.innerText = 'Add';
+            this.button.classList.add("btn-save");
+            this.button.id = "to-do-list-button";
+            this.todoListElement = document.createElement('div');
+            this.todoListElement.className = "board-item-content";
+            this.todoListElementContent = document.createElement('div');
+            this.todoListElementContent.className = "board-item muuri-item muuri-item-shown";
+            
+            //style clear button
+            this.clear_btn.style.display = "none";
+            this.clear_btn.style.position = "absolute";
+            this.clear_btn.style.right = "2px"
+            this.clear_btn.style.top = "2px"
+            //Append elements to the to-do list element  
+            this.todo_header.append(this.todo_title);
+            this.todo_header.append(this.clear_btn);             
+            this.todoListElement.append(this.todo_header);           
+            // this.todoListElement.append(this.input);
+            this.todoListElement.append(this.button);
+            this.todoListElementContent.append(this.todoListElement); 
+            this.todoListElement.append(this.todo_comment);
+             //Viet edit
+            // this.editTitle = new EditableText(this.title, this.todo_title, this, "text", "input");
+
+            //Add todo muuri
+            let stt = this.todoListElementContent;
+            columnGrids[this.type-1].add(stt, { index: 0 });
+
+            //Remove todo muuri
+            this.id = columnGrids[this.type-1]._items[0]._id;
+            this.clear_btn.addEventListener('pointerdown', (event) => {
+              console.log('Clear Todo');
+              for(let i = 0; i < 3; i++){
+                for(let j = 0; j < columnGrids[i]._items.length; j++){
+                  //console.log(columnGrids[i]._items[j]._id)
+                  if (columnGrids[i]._items[j]._id == this.id){
+                    columnGrids[i].remove(columnGrids[i].getItems(j), { removeElements: true })
+                  }
+                }
+              }
+            });
+
+            //Show and hide clear button
+            this.todoListElement.addEventListener("mouseover", () => {
+              this.clear_btn.style.display = "block"
+            }, false);
+            this.todoListElement.addEventListener("mouseout", () => {
+              this.clear_btn.style.display = "none"
+            }, false)
+            
+            //Edit todo title
+            
+
+            
+            this.todo_title.addEventListener("pointerdown", () => {
+              let JSalert = new Promise((resolve, reject) => {
+                console.log("Sweet");
+                swal("Write new title here:", {
+                  content: "input",
+                })
+                .then((value) => {
+                  swal(`New title: ${value}`);
+                  resolve(value);//return value for promise 
+                });
+                
+              });
+              JSalert.then((value) => {console.log(this.todo_title.innerText); this.todo_title.innerText = value});
+            });
+            this.button.addEventListener("pointerdown", () => {
+              let JSalert = new Promise((resolve, reject) => {
+                console.log("Sweet");
+                swal("Write comment here:", {
+                  content: "input",
+                })
+                .then((value) => {
+                  //swal(`New comment: ${value}`);
+                  resolve(value);//return value for promise 
+                });
+                
+              });
+              JSalert.then((value) => {
+                if(value != ""){
+                  this.cardArray.push(new Card(value, this.todo_comment, this));
+              }});
+            });
+            
+            //Change background color by type
+            // const Color = {
+            //     1: ["red"],
+            //     2: ["yellow"],
+            //     3: ["purple"]
+            // };
+            // let x = this.type;
+            // function test (color) {
+            //     return Color[color] || [];
+            // }
+            
+            // this.todoListElement.style.backgroundColor = test(x);
+            
+            
+        }
+    }
+
+    class Card{
+        constructor(text, place, todoList){
+            this.place = place;
+            this.todoList = todoList;
+            this.state = {
+                text: text,
+                description: "Click to write a description...",
+                comments: []
+            }
+            this.render();
+        }
+
+        render(){
+            this.card = document.createElement('div');
+            this.card.classList.add("card");
+            this.card.addEventListener('click', (e)=>{
+                if(e.target != this.deleteButton){
+                    this.showMenu.call(this);
+                }
+            });
+
+            this.p = document.createElement('p');
+            this.p.innerText = this.state.text;
+
+            this.deleteButton = document.createElement('button');
+            this.deleteButton.innerText = "X";
+
+            //Style for delete button
+            this.deleteButton.style.display = "block";
+            this.deleteButton.style.position = "relative";
+            this.deleteButton.style.right = "2px";
+            this.deleteButton.style.top = "2px";
+            this.deleteButton.style.margin = "auto auto auto 99%";
+            // this.deleteButton.style.marginTop = "-12%";
+           
+            this.deleteButton.addEventListener('pointerdown', ()=>{
+                this.card.remove();
+                refreshAll();
+            });
+            this.hr = document.createElement('hr');
+            this.card.append(this.hr);
+            this.card.append(this.p);
+            this.card.append(this.deleteButton);
+            
+            this.place.append(this.card);
+
+            this.p.addEventListener("pointerdown", () => {
+              let JSalert = new Promise((resolve, reject) => {
+                console.log("Sweet");
+                swal("Write comment here:", {
+                  content: "input",
+                })
+                .then((value) => {
+                  //swal(`New comment: ${value}`);
+                  resolve(value);//return value for promise 
+                });
+                
+              });
+              JSalert.then((value) => {
+                if(value != ""){
+                  console.log(value);
+                  this.p.innerText = value;
+                  
+              }});
+            });
+            refreshAll();
+        }
+
+        deleteCard(){
+            
+            //columnGrids[this.todoList.type-1].remove(stt)
+        }
+
+        showMenu(){
+
+            //Create elements
+            this.menu = document.createElement("div");
+            this.menuContainer = document.createElement("div");
+            this.menuTitle = document.createElement("div");
+            this.menuDescription = document.createElement("div");
+            this.commentsInput = document.createElement("input");
+            this.commentsButton = document.createElement('button');
+            this.menuComments = document.createElement("div");
+
+
+            //Add class names
+            this.menu.className = "menu";
+            this.menuContainer.className = "menuContainer";
+            this.menuTitle.className = "menuTitle";
+            this.menuDescription.className = "menuDescription";
+            this.menuComments.className = "menuComments";
+            this.commentsInput.className = "commentsInput comment";
+            this.commentsButton.className = "commentsButton btn-save";
+
+            //Add inner Text
+            this.commentsButton.innerText = "Add";
+            this.commentsInput.placeholder = "Write a comment...";
+
+            //Event listeners
+            this.menuContainer.addEventListener('click', (e)=>{
+                console.log(e.target);
+                if(e.target.classList.contains("menuContainer")){
+                    this.menuContainer.remove();
+                }
+            });
+            
+            this.commentsButton.addEventListener('click', ()=>{
+                if(this.commentsInput.value != ""){
+                    this.state.comments.push(this.commentsInput.value);
+                    this.renderComments();
+                    this.commentsInput.value = "";
+                }
+            })
+
+            //Append
+            this.menu.append(this.menuTitle);
+            this.menu.append(this.menuDescription);
+            this.menu.append(this.commentsInput);
+            this.menu.append(this.commentsButton);
+            this.menu.append(this.menuComments);
+            this.menuContainer.append(this.menu);
+            root1.append(this.menuContainer);
+
+            this.editableDescription = new EditableText(this.state.description, this.menuDescription, this, "description", "textarea");
+            this.editableTitle = new EditableText(this.state.text, this.menuTitle, this, "text", "input");
+            
+            /*
+            constructor(text, place, card, property, typeOfInput){
+            this.text = text;
+            this.place = place;
+            this.card = card;
+            this.property = property;
+            this.typeOfInput = typeOfInput;
+            this.render();
+            }
+            */
+
+            this.renderComments();
+        }
+
+        renderComments(){
+
+            let currentCommentsDOM = Array.from(this.menuComments.childNodes);
+
+            currentCommentsDOM.forEach(commentDOM =>{
+                commentDOM.remove();
+            });
+
+            this.state.comments.forEach(comment =>{
+                new Comment(comment, this.menuComments, this);
+            });
+        }
+    }
+
+    class EditableText{
+        constructor(text, place, card, property, typeOfInput){
+            this.text = text;
+            this.place = place;
+            this.card = card;
+            this.property = property;
+            this.typeOfInput = typeOfInput;
+            this.render();
+        }
+
+        render(){
+            this.div = document.createElement("div");
+            this.p = document.createElement("p");
+
+            this.p.innerText = this.text;
+
+            this.p.addEventListener('pointerdown', ()=>{
+                this.showEditableTextArea.call(this);
+            });
+
+            this.div.append(this.p);
+            this.place.append(this.div);
+        }
+
+        showEditableTextArea(){
+            let oldText = this.text;
+
+            this.input = document.createElement(this.typeOfInput);
+            this.input.setAttribute("autofocus", "true");
+            this.saveButton = document.createElement("button");
+
+            this.p.remove();
+            this.input.value = oldText;
+            this.saveButton.innerText = "Save";
+            this.saveButton.className = "btn-save";
+            this.input.classList.add("comment");
+
+            this.saveButton.addEventListener('pointerdown', ()=>{
+                console.dir(this);
+                console.log(this.input.value);
+                console.dir(this.card.constructor.name);
+                this.text = this.input.value;
+                if(this.card.constructor.name == "todoList") {
+                    alert("Title Card Edited 1");
+                    this.card.toto_title[this.property] = this.input.value;
+                } else if (this.card.constructor.name == "Comment") {
+                    this.card.p[this.property] = this.input.value;
+                } else {
+                    alert("Title Comment Edited 2");
+                    this.card.state[this.property] = this.input.value;
+                }
+                if(this.property == "text"  && this.card.constructor.name != "todoList"
+                        && this.card.constructor.name != "Comment"){
+                    this.card.p.innerText = this.input.value;
+                }
+                    
+                
+                this.div.remove();
+                this.render();
+            });
+
+            function clickSaveButton(event, object){
+                // Number 13 is the "Enter" key on the keyboard
+                if (event.keyCode === 13) {
+                    // Cancel the default action, if needed
+                    event.preventDefault();
+                    // Trigger the button element with a click
+                    object.saveButton.click();
+                }
+            }
+
+            this.input.addEventListener("keyup", (e)=>{
+                if(this.typeOfInput == "input"){
+                    clickSaveButton(e, this);
+                }
+            });
+
+            this.div.append(this.input);
+
+            if(this.typeOfInput == "textarea"){
+                this.div.append(this.saveButton);
+            }
+
+            this.input.select();
+        }
+
+    }
+
+    class Comment{
+        constructor(text, place, card){
+            this.text = text;
+            this.place = place;
+            this.card = card;
+            this.render();
+        }
+
+        render()
+        {
+            this.comment = document.createElement('div');
+            this.comment.className = "comment";
+            this.comment.setAttribute("id", "cmt");
+
+            this.p = document.createElement('p');
+            //this.p.innerText = this.text;
+
+            this.btn = document.createElement('button');
+            this.btn.innerText = "X";
+            this.btn.addEventListener('click', ()=>{
+                this.deleteCmt.call(this);
+            });
+            this.comment.append(this.p);
+            this.comment.append(this.btn);
+
+            this.place.append(this.comment);
+
+            this.editComment = new EditableText(this.text, this.p, this, "text", "input")
+            
+        }
+        deleteCmt(){
+
+                this.comment.remove();
+                let i = this.card.state.comments.indexOf(this);
+                this.card.state.comments.splice(i,1);
+        }
+    }
+
+
+
+    //-------------main------------
+
+    let addTodoInput = document.getElementById("addTodoInput");
+    let addTodo = document.getElementById("addTodo");
+    addTodo.addEventListener('click',()=>{
+        console.log("Todo")
+        if ( addTodoInput.value.trim() != ""){
+            new Todo(addTodoInput.value, 1);
+            addTodoInput.value = "";
+        }
+    });
+    let addWorkingInput = document.getElementById("addWorkingInput");
+    let addWorking = document.getElementById("addWorking");
+    addWorking.addEventListener('click',()=>{
+        console.log("Woring")
+        if ( addWorkingInput.value.trim() != ""){
+            new Todo(addWorkingInput.value, 2);
+            addWorkingInput.value = "";
+        }
+    });
+    let addDoneInput = document.getElementById("addDoneInput");
+    let addDone = document.getElementById("addDone");
+    addDone.addEventListener('click',()=>{
+        console.log("Done")
+        if ( addDoneInput.value.trim() != ""){
+            new Todo(addDoneInput.value, 3);
+            addDoneInput.value = "";
+        }
+    });
+
+    
+
+
+// HELPER FUNCTIONS
+
+</script>
+
+</html>
